@@ -7,7 +7,17 @@ MODFLAGS= $(MOD_FLAG)../../iotk/src $(MOD_FLAG)../../FFTXlib $(MOD_FLAG)../../LA
 IFLAGS=
 
 FOBJS = \
-kcp_main_routine.o 
+nksiclib_module.o \
+init_nksic.o \
+kcp_electrons.o \
+kcp_main_routine.o \
+kcp_move_electrons.o \
+run_kcp.o \
+nksiclib.o \
+inner_loop_generalize.o \
+kcp_cg_sub.o \
+kcp_print_out.o
+
 
 QEMODS=../../Modules/libqemod.a
 QEFFT=../../FFTXlib/libqefft.a

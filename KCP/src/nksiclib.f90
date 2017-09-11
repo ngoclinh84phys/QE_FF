@@ -369,9 +369,8 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
       if(allocated(rhoref)) deallocate(rhoref)
       if(allocated(wxdsic)) deallocate(wxdsic)
       if(allocated(wrefsic)) deallocate(wrefsic)
-      if(allocated(vsicpz)) deallocate(vsicpz)
+      if(allocated(vsicpz))  deallocate(vsicpz)
       if(allocated(vxc_aux)) deallocate(vxc_aux)
-      !
       !
       call stop_clock('nksic_potential')
       ! 
@@ -750,7 +749,7 @@ subroutine nksic_correction_pz( f, ispin, orb_rhor, &
       use cell_base,            only : tpiba2,omega
       use nksic,                only : nkscalfact, hartree_only_sic
       use gvect,                only : ngm, nl, nlm, gstart, gg 
-      use eecp_mod,             only : do_comp
+      !use eecp_mod,             only : do_comp
       use fft_interfaces,       only : fwfft, invfft
       use cp_interfaces,        only : fillgrad
       use fft_base,             only : dffts, dfftp
@@ -960,7 +959,7 @@ subroutine nksic_correction_nki( f, ispin, orb_rhor, rhor, &
       use cp_interfaces,        only : fillgrad
       use electrons_base,       only : nspin
       use gvect,                only : ngm, nl, nlm, gstart, gg
-      use eecp_mod,             only : do_comp
+      !use eecp_mod,             only : do_comp
       use funct,                only : dmxc_spin, dft_is_gradient
       use mp,                   only : mp_sum
       use mp_global,            only : intra_bgrp_comm
@@ -1347,7 +1346,7 @@ subroutine nksic_correction_nkipz( f, ispin, orb_rhor, &
       use cp_interfaces,        only : fillgrad
       use electrons_base,       only : nspin
       use gvect,                only : ngm, nl, nlm, gstart, gg
-      use eecp_mod,             only : do_comp
+      !use eecp_mod,             only : do_comp
       use funct,                only : dft_is_gradient
       use mp,                   only : mp_sum
       use mp_global,            only : intra_bgrp_comm
@@ -1611,14 +1610,14 @@ subroutine nksic_eforce( i, nbsp, nx, vsic, deeq_sic, bec, ngw, c1, c2, vsicpsi)
       ! take advantage of the smooth and the dense grids
       ! being equal (NCPP case)
       !
-      if ( nnrsx == nnrx ) then !waring:giovanni we are not using ultrasoft
+      if ( nnrsx == nnrx ) then
          !
          ! no need to take care of the double grid.
          ! typically, NCPP case
          !
-         CALL c2psi( psi1, nnrx, c1, c2, ngw, 2 ) !warning:giovanni need to change this
+         call c2psi( psi1, nnrx, c1, c2, ngw, 2 ) 
          !
-         CALL invfft('Dense', psi1, dfftp )
+         call invfft('Dense', psi1, dfftp )
          !
          ! computing the orbital wfcs
          ! and the potentials in real space on the full grid
@@ -1633,7 +1632,7 @@ subroutine nksic_eforce( i, nbsp, nx, vsic, deeq_sic, bec, ngw, c1, c2, vsicpsi)
             !
          enddo
          !
-         CALL fwfft('Dense', psi1, dfftp )
+         call fwfft('Dense', psi1, dfftp )
          !
          vsicpsi(:,:) = (0.0_dp, 0.0_dp)
          !

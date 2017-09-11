@@ -28,6 +28,8 @@ PROGRAM kcp_main
   USE mp_images,     ONLY : intra_image_comm
   USE ions_base,     ONLY : nat
   USE command_line_options, ONLY : input_file_
+  USE nksic,         ONLY : deallocate_nksic 
+  USE kcp_electrons_module, ONLY : kcp_deallocate_electrons
   !
   IMPLICIT NONE
   !
@@ -88,6 +90,8 @@ PROGRAM kcp_main
   !
   CALL init_run()
   !
+  CALL init_nksic()
+  !
   DO iloop = 1, nloop
      !
      CALL kcp_main_routine( tau, fion, etot )
@@ -101,6 +105,10 @@ PROGRAM kcp_main
   ! done the modification
   !
   CALL stop_run()
+  !
+  CALL deallocate_nksic()
+  CALL kcp_deallocate_electrons()
+  !
   CALL do_stop( .TRUE. )
   !
   STOP

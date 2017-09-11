@@ -82,7 +82,7 @@ SUBROUTINE kcp_main_routine( tau_out, fion_out, etot_out )
                                        surfclu, Surf_t, abivol, abisur
   USE wavefunctions_module,     ONLY : c0_bgrp, cm_bgrp, phi_bgrp
   USE wannier_module,           ONLY : allocate_wannier
-  USE cp_interfaces,            ONLY : printout_new, move_electrons, newinit
+  USE cp_interfaces,            ONLY : newinit
   USE cell_nose,                ONLY : xnhh0, xnhhm, xnhhp, vnhh, temph, &
                                        qnh, cell_nosevel, cell_noseupd,  &
                                        cell_nose_nrg, cell_nose_shiftvar
@@ -332,8 +332,8 @@ SUBROUTINE kcp_main_routine( tau_out, fion_out, etot_out )
      ENDIF
      !
      CALL kcp_move_electrons( nfi, tfirst, tlast, bg(:,1), bg(:,2), bg(:,3), &
-                          fion, c0_bgrp, cm_bgrp, phi_bgrp, &
-                          enthal, enb, enbi, fccc, ccc, dt2bye, stress, .false. )
+                              fion, c0_bgrp, cm_bgrp, phi_bgrp, &
+                              enthal, enb, enbi, fccc, ccc, dt2bye, stress, .false. )
      !
      IF (lda_plus_u) fion = fion + forceh
      !
@@ -766,10 +766,10 @@ SUBROUTINE kcp_main_routine( tau_out, fion_out, etot_out )
      !
      IF ( tstdout) CALL spinsq ( c0_bgrp, bec_bgrp, rhor )
      !
-     CALL printout_new( nfi, tfirst, tfile, tprint, tps, hold, stress, &
-                        tau0, vels, fion, ekinc, temphc, tempp, temps, etot, &
-                        enthal, econs, econt, vnhh, xnhh0, vnhp, xnhp0, vnhe, xnhe0, atot, &
-                        ekin, epot, tprnfor, tpre, tstdout )
+     CALL kcp_printout_new( nfi, tfirst, tfile, tprint, tps, hold, stress, &
+                            tau0, vels, fion, ekinc, temphc, tempp, temps, etot, &
+                            enthal, econs, econt, vnhh, xnhh0, vnhp, xnhp0, vnhe, xnhe0, atot, &
+                            ekin, epot, tprnfor, tpre, tstdout )
      !
      IF (abivol) etot = etot + P_ext*volclu
      IF (abisur) etot = etot + Surf_t*surfclu
@@ -835,9 +835,9 @@ SUBROUTINE kcp_main_routine( tau_out, fion_out, etot_out )
            !
            lambdam = lambda
            !
-           CALL move_electrons( nfi, tfirst, tlast, bg(:,1), bg(:,2), bg(:,3),&
-                                fion, c0_bgrp, cm_bgrp, phi_bgrp, enthal, enb,&
-                                enbi, fccc, ccc, dt2bye, stress,.true. )
+           CALL kcp_move_electrons( nfi, tfirst, tlast, bg(:,1), bg(:,2), bg(:,3),&
+                                    fion, c0_bgrp, cm_bgrp, phi_bgrp, enthal, enb,&
+                                    enbi, fccc, ccc, dt2bye, stress,.true. )
            !
         ENDIF
         !

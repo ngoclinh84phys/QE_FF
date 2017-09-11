@@ -14,6 +14,7 @@ SUBROUTINE kcp_move_electrons ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
   ! ... this routine updates the electronic degrees of freedom
   !
   USE kinds,                ONLY : DP
+  USE io_global,            ONLY : stdout
   USE control_flags,        ONLY : lwf, tfor, tprnfor, thdyn
   USE cg_module,            ONLY : tcg
   USE cp_main_variables,    ONLY : eigr, irb, eigrb, rhog, rhos, rhor, drhor, &
@@ -23,6 +24,7 @@ SUBROUTINE kcp_move_electrons ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
   USE uspp,                 ONLY : becsum, vkb, nkb, nlcc_any
   USE energies,             ONLY : ekin, enl, entropy, etot
   USE electrons_base,       ONLY : nbsp, nspin, f, nudx, nupdwn, nbspx_bgrp, nbsp_bgrp
+  USE electrons_base,       ONLY : ispin_bgrp, f_bgrp, nspin, nupdwn_bgrp, iupdwn_bgrp
   USE core,                 ONLY : rhoc
   USE ions_positions,       ONLY : tau0
   USE ions_base,            ONLY : nat
@@ -46,6 +48,13 @@ SUBROUTINE kcp_move_electrons ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
   USE wavefunctions_module, ONLY : cv0 ! Lingzhu Kong
   USE funct,                ONLY : dft_is_hybrid, exx_is_active
   !
+      use nksic,                    only : do_orbdep, do_innerloop, do_innerloop_cg, innerloop_cg_nsd, &
+                                           innerloop_cg_nreset, innerloop_init_n, innerloop_cg_ratio, &
+                                           vsicpsi, vsic, wtot, fsic, fion_sic, deeq_sic, f_cutoff, &
+                                           pink, do_wxd, sizwtot, do_bare_eigs, innerloop_until, &
+                                           valpsi, odd_alpha, eodd
+      use kcp_electrons_module,     only : wfc_spreads, wfc_centers, icompute_spread
+  !
   IMPLICIT NONE
   !
   INTEGER,  INTENT(IN)    :: nfi
@@ -63,6 +72,8 @@ SUBROUTINE kcp_move_electrons ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
   LOGICAL, INTENT(in)     :: l_cprestart
   !
   INTEGER :: i, j, is, n2
+  INTEGER :: ninner
+  INTEGER,SAVE :: nouter = 0
   !
   CALL start_clock('kcp_move_electrons')
   !
@@ -125,63 +136,58 @@ SUBROUTINE kcp_move_electrons ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
      !
      IF ( do_orbdep ) THEN
         !
-        !if (odd_nkscalfact) then
-            !
-        !   odd_alpha(:) = 0.0_DP
-            !
-        !   call odd_alpha_routine(c0, nbsp, nbspx, lgam, .false.)
-            ! 
-        !endif
+     !   if (odd_nkscalfact) then
+           !
+     !      odd_alpha(:) = 0.0_DP
+           !
+     !      call odd_alpha_routine(c0, nbsp, nbspx, lgam, .false.)
+           ! 
+     !   endif
         !
-        if ( tens .or. tsmear) THEN
+        !IF ( tens .or. tsmear) THEN
            !
-           fsic = fmat0_diag
+        !   fsic = fmat0_diag
            !
-        else
+        !ELSE
            !
-           fsic = f
+           fsic = f_bgrp
            !
-        endif
+       ! ENDIF
         !
-        IF (MOD(nfi,iprint_stdout)==0.or.tlast) THEN
+        IF ( tlast ) THEN
            !
            icompute_spread=.true.
            !
         ENDIF
         !
-        call nksic_potential( nbsp, nbspx, c0, fsic, bec, becsum, deeq_sic, &
-                    ispin, iupdwn, nupdwn, rhor, rhoc, wtot, sizwtot, vsic, do_wxd, pink, nudx, &
+        CALL nksic_potential( nbsp_bgrp, nbspx_bgrp, c0_bgrp, fsic, bec_bgrp, becsum, deeq_sic, &
+                    ispin_bgrp, iupdwn_bgrp, nupdwn_bgrp, rhor, rhoc, wtot, sizwtot, vsic, do_wxd, pink, nudx, &
                     wfc_centers, wfc_spreads, icompute_spread, .false.)
         !
-        !
-        eodd = sum(pink(1:nbsp))
+        eodd = SUM (pink(1:nbsp))
         !
         nouter = nouter + 1
         !
         ninner = 0
         !
-        if ( do_innerloop .and. ( nouter == 1 .or. mod(nouter,innerloop_dd_nstep) == 0 ) ) then
+        IF ( do_innerloop .and. ( nouter == 1 ) ) THEN
            !
-           if (.not.do_innerloop_cg) then
-              !
-              call nksic_rot_emin(nouter,ninner,etot,Omattot)
-              !
-           else
-              !
-              call nksic_rot_emin_cg(nouter, innerloop_init_n, ninner, etot, Omattot, &
-                    esic_conv_thr, lgam)
-              !  
-           endif
+           CALL nksic_rot_emin_cg_general(nouter, innerloop_init_n, ninner, etot, innerloop_cg_ratio, &
+                                      nbsp_bgrp, nbspx_bgrp, nudx, iupdwn_bgrp, nupdwn_bgrp, ispin_bgrp, c0_bgrp, becsum, bec_bgrp, rhor, rhoc, &
+                         vsic, pink, deeq_sic, wtot, fsic, sizwtot, do_wxd, wfc_centers, wfc_spreads, .false.)
+
+           !CALL nksic_rot_emin_cg(nouter, innerloop_init_n, ninner, etot, Omattot, &
+           !                       esic_conv_thr, lgam)
+           !  
+           eodd = SUM (pink(:))
            !
-           eodd = sum(pink(:))
-           !
-        endif
+        ENDIF
         !
-        if(ionode) write(1032,'(2I10,2F24.13)') ninner, nouter,etot,sum(pink(:))
+        WRITE(stdout,'(2I10,2F24.13)') ninner, nouter,etot,sum(pink(:))
         !
         etot = etot + eodd
         !
-     endif !if( do_orbdep )
+     ENDIF !if( do_orbdep )
      !
      IF ( lwf ) CALL wf_options( tfirst, nfi, cm_bgrp, becsum, bec_bgrp, dbec, &
                                  eigr, eigrb, taub, irb, ibrav, b1,   &

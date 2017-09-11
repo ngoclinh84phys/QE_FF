@@ -53,7 +53,7 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
       use mp,                       only : mp_sum, mp_bcast
       use cp_electronic_mass,       only : emass_cutoff
       use orthogonalize_base,       only : calphi_bgrp
-      use cp_interfaces,            only : rhoofr, rhoofr_generalized, dforce, compute_stress, vofrho, nlfl_bgrp, prefor
+      use cp_interfaces,            only : rhoofr, dforce, compute_stress, vofrho, nlfl_bgrp, prefor
       use cp_interfaces,            only : nlsm2_bgrp, calbec, caldbec_bgrp, nlfq_bgrp
       use cp_interfaces,            only : collect_lambda, distribute_lambda
       use cp_main_variables,        only : descla, drhor, drhog
@@ -68,7 +68,7 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
                                            vsicpsi, vsic, wtot, fsic, fion_sic, deeq_sic, f_cutoff, &
                                            pink, do_wxd, sizwtot, do_bare_eigs, innerloop_until, &
                                            valpsi, odd_alpha, eodd
-      use electrons_module,         only : wfc_spreads, wfc_centers, icompute_spread
+      use kcp_electrons_module,     only : wfc_spreads, wfc_centers, icompute_spread
       !
       implicit none
       !
@@ -725,8 +725,8 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
          ! 
          if (.not.tens) then
             ! 
-            !call rhoofr(nfi,cm(:,:),irb,eigrb,becm,dbec,rhovan,rhor,drhor,rhog,drhog,rhos,enl,denl,ekin,dekin6)
-            call rhoofr_generalized( nbspx, nbsp, ispin, f ,nfi,cm(:,:),irb,eigrb,becm,dbec,rhovan,rhor,drhor,rhog,drhog,rhos,enl,denl,ekin,dekin6)
+            call rhoofr(nfi,cm(:,:),irb,eigrb,becm,dbec,rhovan,rhor,drhor,rhog,drhog,rhos,enl,denl,ekin,dekin6)
+            !call rhoofr_generalized( nbspx, nbsp, ispin, f ,nfi,cm(:,:),irb,eigrb,becm,dbec,rhovan,rhor,drhor,rhog,drhog,rhos,enl,denl,ekin,dekin6)
 
             !
          else
