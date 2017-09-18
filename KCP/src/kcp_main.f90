@@ -29,7 +29,8 @@ PROGRAM kcp_main
   USE ions_base,     ONLY : nat
   USE command_line_options, ONLY : input_file_
   USE nksic,         ONLY : deallocate_nksic 
-  USE kcp_electrons_module, ONLY : kcp_deallocate_electrons
+  USE kcp_electrons_module, ONLY : kcp_electrons_setup, &
+                                   kcp_deallocate_electrons
   !
   IMPLICIT NONE
   !
@@ -91,6 +92,8 @@ PROGRAM kcp_main
   CALL init_run()
   !
   CALL init_nksic()
+  !
+  CALL kcp_electrons_setup() 
   !
   DO iloop = 1, nloop
      !

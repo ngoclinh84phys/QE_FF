@@ -102,7 +102,7 @@ SUBROUTINE kcp_main_routine( tau_out, fion_out, etot_out )
   USE cell_base,                ONLY : s_to_r, r_to_s
   USE wannier_subroutines,      ONLY : wannier_startup, wf_closing_options, &
                                        ef_enthalpy
-  USE cp_interfaces,            ONLY : writefile, eigs, strucf, phfacs
+  USE cp_interfaces,            ONLY : writefile, strucf, phfacs
   USE cp_interfaces,            ONLY : ortho, elec_fakekine, calbec_bgrp, calbec, caldbec_bgrp
   USE constraints_module,       ONLY : check_constraint, remove_constr_force
   USE cp_autopilot,             ONLY : pilot
@@ -118,6 +118,7 @@ SUBROUTINE kcp_main_routine( tau_out, fion_out, etot_out )
   USE london_module,            ONLY : energy_london, force_london, stres_london
   USE input_parameters,         ONLY : tcpbo
   USE funct,                    ONLY : dft_is_hybrid, start_exx, exx_is_active
+  USE kcp_interfaces,           ONLY : kcp_move_electrons, kcp_printout_new, kcp_eigs
   !
   IMPLICIT NONE
   !
@@ -703,13 +704,13 @@ SUBROUTINE kcp_main_routine( tau_out, fion_out, etot_out )
               !
            ENDIF
            !
-           CALL eigs( nfi, lambdap, lambda, descla )
+           CALL kcp_eigs( nfi, lambdap, lambda, descla )
            !
         ELSE
            !
            WRITE( stdout, '("NOTE: eigenvalues are computed even without ortho")' )
            !
-           CALL eigs( nfi, lambdap, lambda, descla )
+           CALL kcp_eigs( nfi, lambdap, lambda, descla )
            !
         ENDIF
         !

@@ -7,7 +7,7 @@
 !
 !
 !----------------------------------------------------------------------------
-SUBROUTINE kcp_move_electrons ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
+SUBROUTINE kcp_move_electrons_x ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
             cm_bgrp, phi_bgrp, enthal, enb, enbi, fccc, ccc, dt2bye, stress, l_cprestart )
   !----------------------------------------------------------------------------
   !
@@ -48,32 +48,32 @@ SUBROUTINE kcp_move_electrons ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
   USE wavefunctions_module, ONLY : cv0 ! Lingzhu Kong
   USE funct,                ONLY : dft_is_hybrid, exx_is_active
   !
-      use nksic,                    only : do_orbdep, do_innerloop, do_innerloop_cg, innerloop_cg_nsd, &
+      use nksic,                    only : do_orbdep, do_innerloop, innerloop_cg_nsd, &
                                            innerloop_cg_nreset, innerloop_init_n, innerloop_cg_ratio, &
                                            vsicpsi, vsic, wtot, fsic, fion_sic, deeq_sic, f_cutoff, &
                                            pink, do_wxd, sizwtot, do_bare_eigs, innerloop_until, &
                                            valpsi, odd_alpha, eodd
-      use kcp_electrons_module,     only : wfc_spreads, wfc_centers, icompute_spread
+  use kcp_electrons_module,     only : wfc_spreads, wfc_centers, icompute_spread
+  USE kcp_interfaces,       ONLY : kcp_runcp_uspp
   !
   IMPLICIT NONE
   !
   INTEGER,  INTENT(IN)    :: nfi
   LOGICAL,  INTENT(IN)    :: tfirst, tlast
   REAL(DP), INTENT(IN)    :: b1(3), b2(3), b3(3)
-  REAL(DP)                :: fion(:,:)
+  REAL(DP)                :: fion(:, :)
   COMPLEX(DP)             :: c0_bgrp(:,:), cm_bgrp(:,:), phi_bgrp(:,:)
   REAL(DP), INTENT(IN)    :: dt2bye
   REAL(DP)                :: fccc, ccc
   REAL(DP)                :: enb, enbi
   REAL(DP)                :: enthal
-  REAL(DP)                :: ei_unp
   REAL(DP)                :: stress(3,3)
-  REAL(DP)                :: dum
   LOGICAL, INTENT(in)     :: l_cprestart
   !
-  INTEGER :: i, j, is, n2
-  INTEGER :: ninner
+  INTEGER      :: i, j, is, n2
+  INTEGER      :: ninner
   INTEGER,SAVE :: nouter = 0
+  REAL(DP)     :: ei_unp
   !
   CALL start_clock('kcp_move_electrons')
   !
@@ -235,7 +235,7 @@ SUBROUTINE kcp_move_electrons ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
         !
      ELSE
         !
-        CALL run_kcp_uspp( nfi, fccc, ccc, ema0bg, dt2bye, rhos, bec_bgrp, c0_bgrp, cm_bgrp )
+        CALL kcp_runcp_uspp( nfi, fccc, ccc, ema0bg, dt2bye, rhos, bec_bgrp, c0_bgrp, cm_bgrp )
         !
      ENDIF
      !
@@ -297,4 +297,4 @@ SUBROUTINE kcp_move_electrons ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp, &
   !
   RETURN
   !
-END SUBROUTINE kcp_move_electrons
+END SUBROUTINE kcp_move_electrons_x

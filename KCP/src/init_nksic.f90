@@ -4,21 +4,22 @@ subroutine init_nksic()
    ! this routine is called anyway, even if do_nk=F
    !
    use nksic,            only : do_orbdep, do_nk, do_nkipz, do_nkpz, do_pz, &
-                                do_nki, do_bare_eigs, do_pz_renorm, kfact, &
+                                do_pzha, do_nki, do_bare_eigs, do_pz_renorm, kfact, &
                                 do_wref, do_wxd, fref, rhobarfact, &
                                 vanishing_rho_w, &
                                 do_spinsym, f_cutoff, &
-                                nkscalfact, nksic_memusage, allocate_nksic, odd_alpha
+                                nkscalfact, odd_nkscalfact, &
+                                nksic_memusage, allocate_nksic, odd_alpha
    !
-   use nksic,            only : esic_conv_thr,do_innerloop,do_innerloop_empty, do_innerloop_cg, &
-                                innerloop_dd_nstep, innerloop_cg_nsd, innerloop_cg_nreset, innerloop_nmax, &
+   use nksic,            only : esic_conv_thr, do_innerloop, &
+                                innerloop_cg_nsd, innerloop_cg_nreset, innerloop_nmax, &
                                 innerloop_cg_ratio, innerloop_init_n, innerloop_until, &
                                 innerloop_atleast
    !
    use input_parameters, only : which_orbdep, &
-                                do_innerloop_ => do_innerloop_,&
+                                do_innerloop_ => do_innerloop,&
                                 nkscalfact_ => nkscalfact,     &
-                                innerloop_step, nkscalfact_odd & 
+                                innerloop_step, nkscalfact_odd 
    !
    use io_global,        only : meta_ionode, stdout
    use electrons_base,   only : nspin, nbspx
@@ -35,36 +36,32 @@ subroutine init_nksic()
    !
    ! overwriten by which_orbdep, if not empty
    !
-   f_cutoff      = 0.01
+   f_cutoff      = 0.1
    !
    nkscalfact          = nkscalfact_
    do_innerloop        = do_innerloop_
    innerloop_nmax      = innerloop_step
-   odd_alpha           = nkscalfact_odd 
+   odd_nkscalfact     = nkscalfact_odd 
    !
    ! Optimal defaults
    ! 
-   esic_conv_thr       = 1.0e-4*nkscalfact_
-   innerloop_dd_nstep  = .TRUE.
-   innerloop_cg_nsd    = innerloop_cg_nsd_
-   innerloop_cg_nreset = innerloop_cg_nreset_
-   innerloop_nmax      = innerloop_nmax_
-   innerloop_init_n    = innerloop_init_n_
-   innerloop_atleast   = innerloop_atleast_
-   innerloop_cg_ratio  = innerloop_cg_ratio_
-   innerloop_until     = innerloop_until_
-   !
-  
+   esic_conv_thr       =  1.0E-5*nkscalfact_
+   innerloop_cg_nsd    = 20 
+   innerloop_cg_nreset = 10 
+   innerloop_init_n    = 10000
+   innerloop_atleast   = 0
+   innerloop_cg_ratio  = 1.d-3 
+   innerloop_until     = -1
    !
    ! use the collective var which_orbdep
    !
-   do i = 1, LEN_TRIM( which_orbdep_ )
-      which_orbdep_(i:i) = lowercase( which_orbdep_(i:i) )
+   do i = 1, LEN_TRIM( which_orbdep )
+      which_orbdep(i:i) = lowercase( which_orbdep(i:i) )
    enddo
    !
    do_orbdep = .true.
    !   
-   SELECT CASE ( TRIM(which_orbdep_) )
+   SELECT CASE ( TRIM(which_orbdep) )
       !
       CASE ( "", "none" )
          !  
@@ -83,7 +80,7 @@ subroutine init_nksic()
          do_wxd   = .TRUE.
          fref     = 1.0
       CASE DEFAULT
-         call errore(subname,"invalid which_orbdep = "//TRIM(which_orbdep_),10)
+         call errore(subname,"invalid which_orbdep = "//TRIM(which_orbdep),10)
    END SELECT
    !
    if ( do_pz .and. meta_ionode ) then
@@ -101,14 +98,16 @@ subroutine init_nksic()
    ! wherein, the information of n_evc0_fixed, ref_alpha0,
    ! broadening of orbitals will be readed.   
    ! 
-   ! call readfile_refalpha()
+   !if (odd_nkscalfact) call readfile_refalpha()
    ! 
    if ( do_orbdep ) call allocate_nksic( dfftp%nnr, ngw, nspin, nbspx, nat)
    !
    if ( do_orbdep ) odd_alpha(:) = 1.d0
    !
    if ( (do_nk .or. do_nkpz ) .and. meta_ionode ) then
-       write(stdout,2010) do_wxd, do_wref, do_nkpz
+      ! 
+      write(stdout,2010) do_wxd, do_wref, do_nkpz
+      ! 
    endif
    !
    if ( do_orbdep ) then
@@ -126,7 +125,7 @@ subroutine init_nksic()
       !
    endif
    !
-2001  format( 3X,'PZ sic = ',l4 ,/)
+2001  format( /, 3X,'PZ sic = ',l4 ,/)
 2002  format( 3X,'NK sic with integral ref = ',l4, / )
 2004  format( 3X,'NK background density factor = ',f7.4, /, &
               3X,'NK scaling factor = ',f7.4 )

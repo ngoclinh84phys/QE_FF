@@ -9,6 +9,7 @@ IFLAGS=
 FOBJS = \
 nksiclib_module.o \
 init_nksic.o \
+kcp_interfaces.o\
 kcp_electrons.o \
 kcp_main_routine.o \
 kcp_move_electrons.o \
@@ -16,6 +17,7 @@ run_kcp.o \
 nksiclib.o \
 inner_loop_generalize.o \
 kcp_cg_sub.o \
+kcp_eigs0.o \
 kcp_print_out.o
 
 

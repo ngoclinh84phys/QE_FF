@@ -63,7 +63,7 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
       !
       ! --- Koopmans 
       ! 
-      use nksic,                    only : do_orbdep, do_innerloop, do_innerloop_cg, innerloop_cg_nsd, &
+      use nksic,                    only : do_orbdep, do_innerloop, innerloop_cg_nsd, &
                                            innerloop_cg_nreset, innerloop_init_n, innerloop_cg_ratio, &
                                            vsicpsi, vsic, wtot, fsic, fion_sic, deeq_sic, f_cutoff, &
                                            pink, do_wxd, sizwtot, do_bare_eigs, innerloop_until, &
@@ -294,6 +294,8 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
                !
             endif
             !
+write(stdout,*) 'do_orbdep', do_orbdep, f
+
             if (do_orbdep) then
                !
                fsic(:) = f(:)
@@ -303,6 +305,7 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
                                      vsic, do_wxd, pink, nudx, wfc_centers, &
                                      wfc_spreads, icompute_spread, .false. )
                ! 
+write(stdout,*) 'do_orbdep', etot, sum(pink(1:nbsp)), do_innerloop
                eodd=sum(pink(1:nbsp))
                ! 
                etot=etot + eodd
@@ -716,18 +719,14 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
          cm=c0+spasso*passof*hi
          !
          !orthonormalize
+         !
          call orthogonalize_wfc_only(cm, becm)
          !
-   !      call calbec(1,nsp,eigr,cm,becm)
-    !     call gram_bgrp( betae, becm, nhsa, cm, ngw )
-         ! 
          !calculate energy
          ! 
          if (.not.tens) then
             ! 
             call rhoofr(nfi,cm(:,:),irb,eigrb,becm,dbec,rhovan,rhor,drhor,rhog,drhog,rhos,enl,denl,ekin,dekin6)
-            !call rhoofr_generalized( nbspx, nbsp, ispin, f ,nfi,cm(:,:),irb,eigrb,becm,dbec,rhovan,rhor,drhor,rhog,drhog,rhos,enl,denl,ekin,dekin6)
-
             !
          else
             !
@@ -821,12 +820,9 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
          endif
          ! 
          call orthogonalize_wfc_only(cm, becm)
-   !      call calbec(1,nsp,eigr,cm,becm)
-    !     call gram_bgrp( betae, becm, nhsa, cm, ngw )
          ! 
          !test on energy: check the energy has really diminished
          !
-         !call calbec(1,nsp,eigr,cm,becm)
          if (.not.tens) then
             !  
             call rhoofr(nfi,cm(:,:),irb,eigrb,becm,dbec,rhovan,rhor,drhor,rhog,drhog,rhos,enl,denl,ekin,dekin6)
@@ -956,11 +952,10 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
             endif  
             !
             c0=c0+spasso*passov*hi
-            restartcg=.true.!ATTENZIONE
+            restartcg=.true.
             !         
             call orthogonalize_wfc_only(c0,bec) 
-            !call calbec(1,nsp,eigr,c0,bec)
-            !call gram_bgrp( betae, bec, nhsa, c0, ngw )
+            !
             ene_ok=.false.
             ! 
             !if ene > ene0,en1 do a steepest descent step
@@ -1632,17 +1627,10 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
            etotnew = etotnew - eodd
            ninner  = 0
            ! 
-           !if (.not.do_innerloop_cg) then
-           !   call nksic_rot_emin(itercg,ninner,etot,Omattot, lgam)
-           !else
-           !call
-           !nksic_rot_emin_cg(itercg,innerloop_init_n,ninner,etot,Omattot,deltae*innerloop_cg_ratio,lgam)
            call nksic_rot_emin_cg_general(itercg, innerloop_init_n, ninner, etot, deltae*innerloop_cg_ratio, &
                                       nbsp, nbspx, nudx, iupdwn, nupdwn, ispin, c0, rhovan, bec, rhor, rhoc, &
                          vsic, pink, deeq_sic, wtot, fsic, sizwtot, do_wxd, wfc_centers, wfc_spreads, .false.)
            !
-           ! endif
-           !  
            eodd    = sum(pink(1:nbsp))
            etot    = etot + eodd
            etotnew = etotnew + eodd

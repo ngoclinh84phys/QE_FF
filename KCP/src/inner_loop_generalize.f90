@@ -37,7 +37,7 @@ subroutine nksic_rot_emin_cg_general(nouter, init_n, ninner, etot, rot_threshold
       integer                  :: ispin(nbspx)
       integer,     intent(in)  :: iupdwn(nspin), nupdwn(nspin)
       real(dp),    intent(in)  :: etot
-      real(dp), intent(in)     :: rot_threshold
+      real(dp),    intent(in)  :: rot_threshold
       real(dp),    intent(in)  :: becsum( nhm*(nhm+1)/2, nat, nspin)
       real(dp),    intent(in)  :: fsic(nbspx)
       real(dp)                 :: rhor(dfftp%nnr,nspin)

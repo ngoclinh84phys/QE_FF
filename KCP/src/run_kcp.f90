@@ -11,7 +11,7 @@
 !=----------------------------------------------------------------------------------=!
 
 
-SUBROUTINE run_kcp_uspp &
+SUBROUTINE kcp_runcp_uspp_x &
       ( nfi, fccc, ccc, ema0bg, dt2bye, rhos, bec_bgrp, c0_bgrp, cm_bgrp, fromscra, restart )
       !
       !  This subroutine performs a Car-Parrinello or Steepest-Descent step
@@ -381,4 +381,4 @@ SUBROUTINE run_kcp_uspp &
      DEALLOCATE( emadt2 )
      DEALLOCATE( emaver )
      !
-ENDSUBROUTINE run_kcp_uspp
+ENDSUBROUTINE kcp_runcp_uspp_x

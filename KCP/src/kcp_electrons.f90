@@ -44,7 +44,7 @@ MODULE kcp_electrons_module
      !  
      IF( ALLOCATED( wfc_centers ) ) DEALLOCATE( wfc_centers )
      IF(nudx > 0) THEN
-        ALLOCATE( wfc_centers(4,nudx,nspin ), STAT=ierr)
+        ALLOCATE( wfc_centers( 4, nudx, nspin ), STAT=ierr)
         IF( ierr/=0 ) CALL errore( ' electrons ',' allocating wfc_centers ',ierr)
         wfc_centers = 0.0_DP
      ENDIF
@@ -141,10 +141,10 @@ MODULE kcp_electrons_module
          !
          IF (.not. do_orbdep) THEN
             !       
-            WRITE(stdout,1444) ( i, wfc_centers(1:4, i, j), & 
-                                    wfc_spreads( i, j, 1),  &
-                                    wfc_spreads( i, j, 2),  & 
-                                    i = 1, nupdwn(j) ) 
+            WRITE(stdout,1442) ( i, wfc_centers(1:4, i, j), &
+                                    wfc_spreads( i, j, 1 ), & 
+                                    wfc_spreads( i, j, 2 ), &
+                                    i = 1, nupdwn(j) )
          ELSE
             !  
             WRITE(stdout,1444) ( i, wfc_centers(1:4, i, j), &
@@ -157,7 +157,8 @@ MODULE kcp_electrons_module
       ENDDO
       !
  1222 FORMAT(/,3X,'Orb -- Charge  ---   Centers xyz (Bohr)  ---  Spreads (Bohr^2) - SH(eV), kp = ',I3, ' , spin = ',I2,/)
- 1444 FORMAT('OCC', I5, ' --',F8.2,'   ---',3F8.2,'   ---',4F8.3)
+ 1442 FORMAT('OCC', I5, ' --',F8.2,'   ---',3F8.2,'   ---',2F8.3  )
+ 1444 FORMAT('OCC', I5, ' --',F8.2,'   ---',3F8.2,'   ---',4F8.3  )
       ! 
       RETURN
       ! 
@@ -182,7 +183,7 @@ MODULE kcp_electrons_module
          IF( ierr/=0 ) CALL errore( ' deallocate_electrons ',' deallocating wfc_spreads ',ierr )
          !
       ENDIF
-      ! 
+      !
       RETURN
       !
    ENDSUBROUTINE kcp_deallocate_electrons 

@@ -8,7 +8,7 @@
 
 
 !=----------------------------------------------------------------------------=!
-SUBROUTINE kcp_printout_new   &
+SUBROUTINE kcp_printout_new_x   &
           ( nfi, tfirst, tfilei, tprint, tps, h, stress, tau0, vels, &
             fion, ekinc, temphc, tempp, temps, etot, enthal, econs, econt, &
             vnhh, xnhh0, vnhp, xnhp0, vnhe, xnhe0, atot, ekin, epot, print_forces, print_stress, &
@@ -31,8 +31,8 @@ SUBROUTINE kcp_printout_new   &
                                     tefield2, pberryel2, pberryion2
       USE cg_module,         ONLY : tcg, itercg
       USE sic_module,        ONLY : self_interaction, sic_alpha, sic_epsilon
-      USE pres_ai_mod,      ONLY : P_ext, Surf_t, volclu, surfclu, abivol, &
-                                   abisur, pvar, n_ele
+      USE pres_ai_mod,       ONLY : P_ext, Surf_t, volclu, surfclu, abivol, &
+                                    abisur, pvar, n_ele
       USE xml_io_base,       ONLY : save_print_counter
       USE cp_main_variables, ONLY : nprint_nfi, iprint_stdout
       USE io_files,          ONLY : tmp_dir
@@ -47,7 +47,8 @@ SUBROUTINE kcp_printout_new   &
       USE funct,             ONLY : dft_is_hybrid, exx_is_active
       USE wannier_module,    ONLY : wfc
       USE electrons_base,    ONLY : nbsp, nspin, nupdwn, iupdwn
-      USE kcp_electrons_module,  ONLY : kcp_print_eigenvalues, print_centers_spreads
+      USE kcp_electrons_module,  ONLY : kcp_print_eigenvalues, &
+                                        print_centers_spreads
       !
       IMPLICIT NONE
       !
@@ -486,4 +487,4 @@ SUBROUTINE kcp_printout_new   &
       !
       RETURN
       !
-END SUBROUTINE kcp_printout_new
+END SUBROUTINE kcp_printout_new_x

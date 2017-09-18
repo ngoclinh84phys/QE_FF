@@ -24,7 +24,6 @@ module nksic
   real(dp),allocatable :: pink(:)
   real(dp),allocatable :: pink_emp(:)
   real(dp),allocatable :: odd_alpha(:)
-  real(dp),allocatable :: odd_alpha_emp(:) 
   real(dp),allocatable :: wtot(:,:)
   complex(dp),allocatable :: vsicpsi(:,:)
   !
@@ -43,6 +42,7 @@ module nksic
   logical :: icompute_spread
   logical :: do_nk
   logical :: do_pz
+  logical :: do_pzha
   logical :: do_pz_renorm
   logical :: do_bare_eigs
   logical :: do_nkpz
@@ -55,9 +55,6 @@ module nksic
   logical :: hartree_only_sic
   !
   logical :: do_innerloop
-  logical :: do_innerloop_empty
-  logical :: do_innerloop_cg
-  integer :: innerloop_dd_nstep
   integer :: innerloop_cg_nsd
   integer :: innerloop_cg_nreset
   integer :: innerloop_nmax
@@ -153,6 +150,7 @@ contains
   subroutine deallocate_nksic
       !
       !use input_parameters, only: odd_nkscalfact
+      if(allocated(fsic))        deallocate(fsic)
       if(allocated(vsic))        deallocate(vsic)
       if(allocated(fion_sic))    deallocate(fion_sic)
       if(allocated(deeq_sic))    deallocate(deeq_sic)
@@ -160,8 +158,6 @@ contains
       if(allocated(odd_alpha))   deallocate(odd_alpha)
       if(allocated(vsicpsi))     deallocate(vsicpsi)
       if(allocated(wtot))        deallocate(wtot)
-      if(allocated(pink_emp))    deallocate(pink_emp)
-      if(allocated(odd_alpha_emp))   deallocate(odd_alpha_emp)
          !
       !if (odd_nkscalfact) then
          !

@@ -14,6 +14,8 @@ MODULE kcp_interfaces
   !
   PUBLIC :: kcp_move_electrons
   PUBLIC :: kcp_printout_new
+  PUBLIC :: kcp_runcp_uspp
+  PUBLIC :: kcp_eigs
   !
   INTERFACE kcp_move_electrons
     SUBROUTINE kcp_move_electrons_x( &
@@ -60,5 +62,31 @@ MODULE kcp_interfaces
      END SUBROUTINE
   END INTERFACE
   !
-END MODULE
+  INTERFACE kcp_runcp_uspp
+     SUBROUTINE kcp_runcp_uspp_x &
+         ( nfi, fccc, ccc, ema0bg, dt2bye, rhos, bec_bgrp, c0_bgrp, cm_bgrp, fromscra, restart )
+         USE kinds,             ONLY: DP
+         IMPLICIT NONE
+         integer, intent(in) :: nfi
+         real(DP) :: fccc, ccc
+         real(DP) :: ema0bg(:), dt2bye
+         real(DP) :: rhos(:,:)
+         real(DP) :: bec_bgrp(:,:)
+         complex(DP) :: c0_bgrp(:,:), cm_bgrp(:,:)
+         logical, optional, intent(in) :: fromscra
+         logical, optional, intent(in) :: restart
+     END SUBROUTINE
+  END INTERFACE
+  !
+  INTERFACE kcp_eigs
+     SUBROUTINE kcp_eigs_x( nfi, lambdap, lambda, desc )
+         USE kinds,            ONLY: DP
+         USE descriptors,      ONLY: la_descriptor
+         IMPLICIT NONE
+         INTEGER :: nfi
+         REAL(DP) :: lambda( :, :, : ), lambdap( :, :, : )
+         TYPE(la_descriptor), INTENT(IN) :: desc( : )
+     END SUBROUTINE
+  END INTERFACE
 
+END MODULE
