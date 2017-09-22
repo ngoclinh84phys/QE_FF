@@ -26,8 +26,9 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
       use fft_base,                   only: dfftp
       USE electrons_base,             only: nspin
       use funct,                      only: dft_is_gradient, dft_is_meta
-      use nksic,                      only: do_nki, do_pz, do_nkpz, do_nkipz, do_nk, &
-                                            fion_sic, valpsi, odd_alpha, nkscalfact, odd_nkscalfact
+      use nksic,                      only: do_nki, do_pz, do_nkipz, &
+                                            fion_sic, valpsi, odd_alpha, & 
+                                            nkscalfact, odd_nkscalfact
       use ions_base,                  only: nat
       use control_flags,              only: gamma_only
       use uspp,                       only: nkb, nlcc_any
@@ -37,19 +38,19 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
       !
       ! in/out vars
       !
-      integer,     intent(in)  :: nbsp, nx, nudx, sizwtot
-      integer,     intent(in)  :: ispin(nx)
-      integer,     intent(in)  :: iupdwn(nspin), nupdwn(nspin)
-      real(dp),    intent(in)  :: bec(nkb,nbsp)
-      real(dp),    intent(in)  :: becsum( nhm*(nhm+1)/2, nat, nspin)
-      real(dp),    intent(in)  :: f_diag(nx)
-      real(dp)                 :: rhor(dfftp%nnr,nspin)
-      real(dp),    intent(in)  :: rhoc(dfftp%nnr)
-      real(dp),    intent(out) :: vsic(dfftp%nnr,nx), wtot(sizwtot,2)
-      real(dp),    intent(out) :: deeq_sic(nhm,nhm,nat,nx)
-      real(dp),    intent(out) :: pink(nx)
-      complex(dp), intent(in)  :: c(ngw,nx)
-      logical,     intent(in)  :: do_wxd_
+      integer,     intent(in)   :: nbsp, nx, nudx, sizwtot
+      integer,     intent(in)   :: ispin(nx)
+      integer,     intent(in)   :: iupdwn(nspin), nupdwn(nspin)
+      real(dp),    intent(in)   :: bec(nkb,nbsp)
+      real(dp),    intent(in)   :: becsum( nhm*(nhm+1)/2, nat, nspin)
+      real(dp),    intent(in)   :: f_diag(nx)
+      real(dp),    intent(inout):: rhor(dfftp%nnr,nspin)
+      real(dp),    intent(in)   :: rhoc(dfftp%nnr)
+      real(dp),    intent(out)  :: vsic(dfftp%nnr,nx), wtot(sizwtot,2)
+      real(dp),    intent(out)  :: deeq_sic(nhm,nhm,nat,nx)
+      real(dp),    intent(out)  :: pink(nx)
+      complex(dp), intent(in)   :: c(ngw,nx)
+      logical,     intent(in)   :: do_wxd_
       logical  :: icompute_spread
       real(DP) :: wfc_centers(4,nudx,nspin)
       real(DP) :: wfc_spreads(nudx,nspin,2)
@@ -97,20 +98,11 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
       !
       allocate( orb_rhor(dfftp%nnr,2) )
       ! 
-      if (do_nki .or. do_nkipz .or. do_nk .or. do_nkpz) then
+      if ( do_nki .or. do_nkipz ) then
          ! 
          allocate( rhobar(dfftp%nnr,2) )
          allocate( rhoref(dfftp%nnr,2) )
          !
-         if ( do_nk .or. do_nkpz ) then
-            ! 
-            allocate( wxdsic(dfftp%nnr,2) )
-            allocate( wrefsic(dfftp%nnr) )
-            wxdsic=0.0_dp
-            wrefsic=0.0_dp
-            !
-         endif
-         ! 
          if ( do_nki .or. do_nkipz ) then
             ! 
             allocate( wxdsic(dfftp%nnr, 2) )
@@ -118,14 +110,14 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
             ! 
          endif
          !
-         if ( do_nkpz .or. do_nkipz) then
+         if ( do_nkipz) then
             ! 
             allocate(vsicpz(dfftp%nnr))
             vsicpz=0.0_dp
             !
          endif
          !
-         if (do_nki .or. do_nk .or. do_nkipz) then
+         if ( do_nki .or. do_nkipz) then
             !
             allocate(vxc_aux(dfftp%nnr, 2))
             vxc_aux=0.0_dp
@@ -146,7 +138,7 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
          !
       endif
       !
-      if ( do_nki .or. do_nkipz .or. do_nk .or. do_nkpz ) then
+      if ( do_nki .or. do_nkipz ) then
          ! 
          wtot=0.0_dp
          !
@@ -202,7 +194,7 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
            !
            focc=f_diag(i)*DBLE(nspin)/2.0d0
            !
-           if (do_nki .or. do_nkipz .or. do_nk .or. do_nkpz ) then
+           if ( do_nki .or. do_nkipz ) then
               !
               ! define rhoref and rhobar
               !
@@ -268,7 +260,7 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
               ! 
            endif
            !
-           if ( do_nk .or. do_nkpz .or. do_nki .or. do_nkipz) then
+           if ( do_nki .or. do_nkipz) then
               !
               if ( nspin== 1 ) then
                  !
@@ -294,7 +286,7 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
       !
       ! now wtot is completely built and can be added to vsic
       !
-      if ( do_nk .or. do_nkpz .or. do_nki .or. do_nkipz ) then
+      if ( do_nki .or. do_nkipz ) then
          !
          do i = 1, nbsp
             !
@@ -316,11 +308,9 @@ subroutine nksic_potential( nbsp, nx, c, f_diag, bec, becsum, &
                !  
                if ( i > nbsp ) exit inner_loop_odd_alpha
                !
-      !         vsic(1:nnrx,i) = vsic(1:nnrx,i)*odd_alpha(i)/nkscalfact
+               vsic(:,i) = vsic(:,i)*odd_alpha(i)/nkscalfact
                !
-      !         valpsi(i,:) = valpsi(i,:) * pink(i)/nkscalfact
-               ! 
-      !         pink(i) = pink(i)*odd_alpha(i)/nkscalfact
+               pink(i) = pink(i)*odd_alpha(i)/nkscalfact
                !
             enddo inner_loop_odd_alpha
             !
@@ -595,7 +585,7 @@ subroutine nksic_get_rhoref( i, nnrx, ispin, nspin, f, &
       use cp_interfaces,              only : fillgrad
       use fft_base,                   only : dffts, dfftp
       use gvecs,                      only : ngms, nls, nlsm
-      use nksic,                      only : fref, rhobarfact
+      use nksic,                      only : fref
       !
       implicit none
       !
@@ -635,14 +625,6 @@ subroutine nksic_get_rhoref( i, nnrx, ispin, nspin, f, &
       endif
       !
       rhobar_(:,ispin) = rhobar_(:,ispin) - f * orb_rhor(:)
-      !
-      ! probably obsolete
-      !
-      if ( rhobarfact < 1.0d0 ) then
-         !
-         rhobar_ = rhobar_ * rhobarfact
-         !
-      endif
       !
       ! define rhoref = rho + (f_ref -f_i) rho_i = rhobar_i + f_ref * rho_i
       ! build rhoref from scratch
@@ -953,7 +935,7 @@ subroutine nksic_correction_nki( f, ispin, orb_rhor, rhor, &
       use kinds,                only : dp
       use constants,            only : e2, fpi, hartree_si, electronvolt_si
       use cell_base,            only : tpiba2, omega
-      use nksic,                only : fref, rhobarfact, nkscalfact 
+      use nksic,                only : fref, nkscalfact 
       use fft_interfaces,       only : fwfft, invfft
       use fft_base,             only : dffts, dfftp
       use cp_interfaces,        only : fillgrad
@@ -1155,16 +1137,14 @@ subroutine nksic_correction_nki( f, ispin, orb_rhor, rhor, &
       allocate(vxcref(nnrx,2))
       !
       ! this term is computed for ibnd, ispin == 1 and stored
-      ! or if rhobarfact < 1
       !
-      if ( ( ibnd == 1 .and. ispin == 1) .OR. rhobarfact < 1.0_dp ) then 
+      if ( ( ibnd == 1 .and. ispin == 1) ) then 
          !
          etxc_aux=0.0_dp
          vxc_aux=0.0_dp
          !
          ! some memory can be same in the nspin-2 case,
          ! considering that rhobar + f*rhoele is identical to rho
-         ! when rhobarfact == 1
          !
          if ( dft_is_gradient() ) then
             !

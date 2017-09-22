@@ -101,7 +101,7 @@ contains
         ! 
      endif
      !
-     if ( do_nki .or. do_nkipz) then
+     if ( do_nki .or. do_nkipz ) then
         ! 
         allocate(wtot(nnrx,2))
         !

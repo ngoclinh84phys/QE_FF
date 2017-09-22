@@ -39,19 +39,19 @@ SUBROUTINE kcp_main_routine( tau_out, fion_out, etot_out )
   USE cg_module,                ONLY : tcg,  cg_update, c0old
   USE gvect,                    ONLY : ngm, ngm_g
   USE gvecs,                    ONLY : ngms
-  USE smallbox_gvec,                    ONLY : ngb
+  USE smallbox_gvec,            ONLY : ngb
   USE gvecw,                    ONLY : ngw, ngw_g
-  USE gvect,       ONLY : gstart, mill, eigts1, eigts2, eigts3
+  USE gvect,                    ONLY : gstart, mill, eigts1, eigts2, eigts3
   USE ions_base,                ONLY : na, nat, amass, nax, nsp, rcmax
   USE ions_base,                ONLY : ind_srt, ions_cofmass, ions_kinene, &
-                                       ions_temp, ions_thermal_stress, &
+                                       ions_temp, ions_thermal_stress,     &
                                        if_pos, extfor
-  USE ions_base,                ONLY : ions_vrescal, fricp, greasp, &
+  USE ions_base,                ONLY : ions_vrescal, fricp, greasp,        &
                                        iforce, ndfrz, ions_shiftvar, ityp, &
                                        atm, ind_bck, cdm, cdms, ions_cofmsub
-  USE cell_base,                ONLY : at, bg, ainv, frich, &
-                                       greash, tpiba2, omega, alat, ibrav,  &
-                                       celldm, h, hold, hnew, velh,         &
+  USE cell_base,                ONLY : at, bg, ainv, frich,                &
+                                       greash, tpiba2, omega, alat, ibrav, &
+                                       celldm, h, hold, hnew, velh,        &
                                        wmass, press, iforceh, cell_force
   USE local_pseudo,             ONLY : allocate_local_pseudo
   USE io_global,                ONLY : stdout, ionode, ionode_id
@@ -69,16 +69,16 @@ SUBROUTINE kcp_main_routine( tau_out, fion_out, etot_out )
                                        vels, velsm, velsp, ions_hmove,       &
                                        ions_move, fion, fionm
   USE ions_nose,                ONLY : gkbt, kbt, qnp, ndega, nhpcl, nhpdim, &
-                                       nhpbeg, nhpend,               &
-                                       vnhp, xnhp0, xnhpm, xnhpp,    &
+                                       nhpbeg, nhpend,                       &
+                                       vnhp, xnhp0, xnhpm, xnhpp,            &
                                        atm2nhp, ions_nosevel, ions_noseupd,  &
                                        tempw, ions_nose_nrg, gkbt2nhp,       &
                                        ekin2nhp, anum2nhp
   USE electrons_nose,           ONLY : qne, ekincw, xnhe0, xnhep, xnhem,  &
-                                       vnhe, electrons_nose_nrg,    &
+                                       vnhe, electrons_nose_nrg,          &
                                        electrons_nose_shiftvar,           &
                                        electrons_nosevel, electrons_noseupd
-  USE pres_ai_mod,              ONLY : P_ext, P_in, P_fin, pvar, volclu, &
+  USE pres_ai_mod,              ONLY : P_ext, P_in, P_fin, pvar, volclu,  &
                                        surfclu, Surf_t, abivol, abisur
   USE wavefunctions_module,     ONLY : c0_bgrp, cm_bgrp, phi_bgrp
   USE wannier_module,           ONLY : allocate_wannier

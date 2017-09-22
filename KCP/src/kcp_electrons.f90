@@ -6,13 +6,9 @@
 ! or http://www.gnu.org/copyleft/gpl.txt .
 !
 MODULE kcp_electrons_module
-   USE kinds
-   USE dspev_module,       ONLY: pdspev_drv, dspev_drv
-   USE electrons_base,     ONLY: nbnd, nbndx, nbsp, nbspx, nspin, nel, nelt, &
-                                 nupdwn, iupdwn, telectrons_base_initval, f, &
-                                 nudx, nupdwn_bgrp, iupdwn_bgrp, nudx_bgrp, &
-                                 nbsp_bgrp, nbspx_bgrp, i2gupdwn_bgrp
-   USE cp_electronic_mass, ONLY: ecutmass => emass_cutoff, emass, emass_precond
+   !
+   USE kinds,              ONLY : DP
+   USE electrons_base,     ONLY : nspin, nupdwn, nudx
    !
    IMPLICIT NONE    
    ! 

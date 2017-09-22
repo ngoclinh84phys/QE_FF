@@ -890,8 +890,8 @@ subroutine nksic_rotwfn_general(nbspx,nupdwn_isp,iupdwn_isp,Omat1,wfc1,wfc2)
       ! ... Simple rotation of wfc1 into wfc2 by Omat1.
       !     wfc2(n) = sum_m wfc1(m) Omat1(m,n)
       !
-      use gvecw,                      only : ngw
       use kinds,                      only : dp
+      use gvecw,                      only : ngw
       !
       implicit none
       !

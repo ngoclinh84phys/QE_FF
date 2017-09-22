@@ -158,12 +158,12 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
       pre_state=.false.!normally is disabled
       maxiter3=250
       !
-      if(ionode) then
-         uname = TRIM( tmp_dir ) // trim(prefix) // '.' &
-                 // trim(int_to_char( my_image_id )) // '_' // trim(int_to_char( me_image))
+      !if(ionode) then
+      !   uname = TRIM( tmp_dir ) // trim(prefix) // '.' &
+      !           // trim(int_to_char( my_image_id )) // '_' // trim(int_to_char( me_image))
          !open(37,file='convergence.dat',status='unknown')!for debug and tuning purposes
-         open(37,file=uname,status='unknown')!for debug and tuning purposes
-      endif
+      !   open(37,file=uname,status='unknown')!for debug and tuning purposes
+      !endif
       ! 
       if( tfirst .and. ionode) &
          write(stdout,*) 'PERFORMING CONJUGATE GRADIENT MINIMIZATION OF EL. STATES'
@@ -185,8 +185,6 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
       ! orthonormalize c0
       !
       call orthogonalize_wfc_only(c0, bec)
-      !call calbec(1,nsp,eigr,c0,bec)
-      !call gram_bgrp( betae, bec, nhsa, c0, ngw )
       ! 
       ! calculates phi for pcdaga
       !
@@ -294,8 +292,6 @@ subroutine kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec, irb, eigrb, &
                !
             endif
             !
-write(stdout,*) 'do_orbdep', do_orbdep, f
-
             if (do_orbdep) then
                !
                fsic(:) = f(:)
@@ -305,7 +301,6 @@ write(stdout,*) 'do_orbdep', do_orbdep, f
                                      vsic, do_wxd, pink, nudx, wfc_centers, &
                                      wfc_spreads, icompute_spread, .false. )
                ! 
-write(stdout,*) 'do_orbdep', etot, sum(pink(1:nbsp)), do_innerloop
                eodd=sum(pink(1:nbsp))
                ! 
                etot=etot + eodd
@@ -399,8 +394,6 @@ write(stdout,*) 'do_orbdep', etot, sum(pink(1:nbsp)), do_innerloop
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          !look if the following orthogonalization are really needed
          call orthogonalize(c0,hpsi,becm,bec)
-         !call calbec(1,nsp,eigr,hpsi,becm)
-         !call pc2(c0,bec,hpsi,becm)
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          !
          !
@@ -417,8 +410,6 @@ write(stdout,*) 'do_orbdep', etot, sum(pink(1:nbsp)), do_innerloop
          endif
          ! 
          call orthogonalize(c0,gi,becm,bec)
-         !call calbec(1,nsp,eigr,gi,becm)
-         !call pc2(c0,bec,gi,becm)
          ! 
          if (tens) call calcmt( nrlx, f, z0t, fmat0 )
          !  
@@ -618,8 +609,6 @@ write(stdout,*) 'do_orbdep', etot, sum(pink(1:nbsp)), do_innerloop
          !project hi on conduction sub-space
          !
          call orthogonalize(c0,hi,bec0,bec)
-         !call calbec(1,nsp,eigr,hi,bec0)
-         !call pc2(c0,bec,hi,bec0)
          !
          !do quadratic minimization
          !             
@@ -893,17 +882,17 @@ write(stdout,*) 'do_orbdep', etot, sum(pink(1:nbsp)), do_innerloop
             ! 
          endif
          !
-         if (tens.and.newscheme) then
+         !if (tens.and.newscheme) then
             !
-            if(ionode) write(37,'(a3,4f20.10)') 'CG1',ene0,ene1,enesti,enever
-            if(ionode) write(37,'(a3,4f10.7)')  'CG2',spasso,passov,passo,(enever-ene0)/passo/dene0
+         !   if(ionode) write(37,'(a3,4f20.10)') 'CG1',ene0,ene1,enesti,enever
+         !   if(ionode) write(37,'(a3,4f10.7)')  'CG2',spasso,passov,passo,(enever-ene0)/passo/dene0
             ! 
-         else
+         !else
             !
-            if(ionode) write(37,'(a3,4f20.10)') 'CG1',ene0+entropy,ene1+entropy,enesti+entropy,enever+entropy
-            if(ionode) write(37,'(a3,4f10.7)')  'CG2',spasso,passov,passo,(enever-ene0)/passo/dene0
+         !   if(ionode) write(37,'(a3,4f20.10)') 'CG1',ene0+entropy,ene1+entropy,enesti+entropy,enever+entropy
+         !   if(ionode) write(37,'(a3,4f10.7)')  'CG2',spasso,passov,passo,(enever-ene0)/passo/dene0
             !
-         endif
+         !endif
          !
          !check with  what supposed
          !
@@ -1477,7 +1466,7 @@ write(stdout,*) 'do_orbdep', etot, sum(pink(1:nbsp)), do_innerloop
        deallocate(hpsi0,hpsi,gi,hi)
        deallocate(s_minus1,k_minus1)
        !
-       if (ionode) close(37)!for debug and tuning purposes
+       !if (ionode) close(37)!for debug and tuning purposes
        !
        call stop_clock('runcg_uspp')
        ! 
@@ -1603,17 +1592,8 @@ write(stdout,*) 'do_orbdep', etot, sum(pink(1:nbsp)), do_innerloop
         !
         call calbec(1,nsp,eigr,wfc,becwfc)
         !
-           !if (fixed_state) then
-             !
-           !  call gram_swap(betae,becwfc,nhsa,wfc,ngw,nbsp, fixed_band)
-             ! 
-           !else
-             ! 
         call gram_bgrp( betae, becwfc, nhsa, wfc, ngw ) 
-             ! 
-        !   endif
-            !
-        !ENDIF
+        ! 
    endsubroutine orthogonalize_wfc_only
    !
    subroutine do_innerloop_subroutine()
@@ -1663,11 +1643,6 @@ write(stdout,*) 'do_orbdep', etot, sum(pink(1:nbsp)), do_innerloop
            endif
            !
         endif
-        !
-        !if(ionode) write(stdout, *) 'itercg, etotnew,pberryel,pberryel2'!for
-        !debug and tuning purposes
-        !if(ionode) write(stdout, *) itercg, etotnew,pberryel,pberryel2!for
-        !debug and tuning purposes
         !
    endsubroutine print_out_observables
    !    

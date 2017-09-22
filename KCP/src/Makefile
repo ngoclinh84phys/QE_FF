@@ -18,7 +18,8 @@ nksiclib.o \
 inner_loop_generalize.o \
 kcp_cg_sub.o \
 kcp_eigs0.o \
-kcp_print_out.o
+kcp_print_out.o \
+kcp_read_init_orbs.o
 
 
 QEMODS=../../Modules/libqemod.a

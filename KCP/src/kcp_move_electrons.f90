@@ -48,12 +48,12 @@ SUBROUTINE kcp_move_electrons_x ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp,
   USE wavefunctions_module, ONLY : cv0 ! Lingzhu Kong
   USE funct,                ONLY : dft_is_hybrid, exx_is_active
   !
-      use nksic,                    only : do_orbdep, do_innerloop, innerloop_cg_nsd, &
-                                           innerloop_cg_nreset, innerloop_init_n, innerloop_cg_ratio, &
-                                           vsicpsi, vsic, wtot, fsic, fion_sic, deeq_sic, f_cutoff, &
-                                           pink, do_wxd, sizwtot, do_bare_eigs, innerloop_until, &
-                                           valpsi, odd_alpha, eodd
-  use kcp_electrons_module,     only : wfc_spreads, wfc_centers, icompute_spread
+  USE nksic,                ONLY : do_orbdep, do_innerloop, innerloop_cg_nsd, &
+                                   innerloop_cg_nreset, innerloop_init_n, innerloop_cg_ratio, &
+                                   vsicpsi, vsic, wtot, fsic, fion_sic, deeq_sic, f_cutoff, &
+                                   pink, do_wxd, sizwtot, do_bare_eigs, innerloop_until, &
+                                   valpsi, odd_alpha, eodd
+  USE kcp_electrons_module, ONLY : wfc_spreads, wfc_centers, icompute_spread
   USE kcp_interfaces,       ONLY : kcp_runcp_uspp
   !
   IMPLICIT NONE
@@ -80,6 +80,7 @@ SUBROUTINE kcp_move_electrons_x ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp,
   electron_dynamic: IF ( tcg ) THEN
      !
      CALL kcp_runcg_uspp( nfi, tfirst, tlast, eigr, bec_bgrp, irb, eigrb, &
+     !CALL runcg_uspp( nfi, tfirst, tlast, eigr, bec_bgrp, irb, eigrb, &
                       rhor, rhog, rhos, rhoc, eigts1, eigts2, eigts3, sfac, &
                       fion, ema0bg, becdr_bgrp, lambdap, lambda, SIZE(lambda,1), vpot, c0_bgrp, &
                       cm_bgrp, phi_bgrp, dbec, l_cprestart  )
@@ -136,23 +137,7 @@ SUBROUTINE kcp_move_electrons_x ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp,
      !
      IF ( do_orbdep ) THEN
         !
-     !   if (odd_nkscalfact) then
-           !
-     !      odd_alpha(:) = 0.0_DP
-           !
-     !      call odd_alpha_routine(c0, nbsp, nbspx, lgam, .false.)
-           ! 
-     !   endif
-        !
-        !IF ( tens .or. tsmear) THEN
-           !
-        !   fsic = fmat0_diag
-           !
-        !ELSE
-           !
-           fsic = f_bgrp
-           !
-       ! ENDIF
+        !fsic = f_bgrp
         !
         IF ( tlast ) THEN
            !
@@ -160,7 +145,7 @@ SUBROUTINE kcp_move_electrons_x ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp,
            !
         ENDIF
         !
-        CALL nksic_potential( nbsp_bgrp, nbspx_bgrp, c0_bgrp, fsic, bec_bgrp, becsum, deeq_sic, &
+        CALL nksic_potential( nbsp_bgrp, nbspx_bgrp, c0_bgrp, f_bgrp, bec_bgrp, becsum, deeq_sic, &
                     ispin_bgrp, iupdwn_bgrp, nupdwn_bgrp, rhor, rhoc, wtot, sizwtot, vsic, do_wxd, pink, nudx, &
                     wfc_centers, wfc_spreads, icompute_spread, .false.)
         !
@@ -172,13 +157,10 @@ SUBROUTINE kcp_move_electrons_x ( nfi, tfirst, tlast, b1, b2, b3, fion, c0_bgrp,
         !
         IF ( do_innerloop .and. ( nouter == 1 ) ) THEN
            !
-           CALL nksic_rot_emin_cg_general(nouter, innerloop_init_n, ninner, etot, innerloop_cg_ratio, &
-                                      nbsp_bgrp, nbspx_bgrp, nudx, iupdwn_bgrp, nupdwn_bgrp, ispin_bgrp, c0_bgrp, becsum, bec_bgrp, rhor, rhoc, &
-                         vsic, pink, deeq_sic, wtot, fsic, sizwtot, do_wxd, wfc_centers, wfc_spreads, .false.)
-
-           !CALL nksic_rot_emin_cg(nouter, innerloop_init_n, ninner, etot, Omattot, &
-           !                       esic_conv_thr, lgam)
-           !  
+           CALL nksic_rot_emin_cg_general( nouter, innerloop_init_n, ninner, etot, innerloop_cg_ratio, &
+                     nbsp_bgrp, nbspx_bgrp, nudx, iupdwn_bgrp, nupdwn_bgrp, ispin_bgrp, c0_bgrp, becsum, bec_bgrp, rhor, rhoc, &
+                     vsic, pink, deeq_sic, wtot, f_bgrp, sizwtot, do_wxd, wfc_centers, wfc_spreads, .false.)
+           !
            eodd = SUM (pink(:))
            !
         ENDIF
