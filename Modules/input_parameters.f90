@@ -1290,6 +1290,26 @@ MODULE input_parameters
      &                      Surf_t, dthr, cntr, axis, jellium, R_j, h_j
 
 !=----------------------------------------------------------------------------=!
+!  KOOPMANS-COMPLIANT Namelist Input Parameters
+!=----------------------------------------------------------------------------=!
+       CHARACTER(len=80) :: which_orbdep=""
+       CHARACTER(len=80) :: which_orbdep_allowed(5)
+       DATA which_orbdep_allowed /'none', 'nki', 'nkipz', 'pz', 'pzha' /
+       !
+       REAL(DP) :: nkscalfact
+       !
+       LOGICAL  :: nkscalfact_odd
+       !
+       LOGICAL  :: l_read_orbs_from_file
+       !
+       LOGICAL  :: do_innerloop
+       !
+       INTEGER  :: innerloop_step
+       !
+       NAMELIST / kcp_vars / which_orbdep, nkscalfact, nkscalfact_odd, & 
+                             do_innerloop, innerloop_step, l_read_orbs_from_file
+
+!=----------------------------------------------------------------------------=!
 !  WANNIER Namelist Input Parameters
 !=----------------------------------------------------------------------------=!
 

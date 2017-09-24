@@ -39,7 +39,8 @@ MODULE read_namelists_module
        system_bcast, electrons_bcast, ions_bcast, cell_bcast, &
        press_ai_bcast, wannier_bcast, wannier_ac_bcast, control_checkin, &
        system_checkin, electrons_checkin, ions_checkin, cell_checkin, &
-       wannier_checkin, wannier_ac_checkin, fixval
+       wannier_checkin, wannier_ac_checkin, fixval, &
+       kcp_defaults, kcp_bcast 
   !
   !  ... end of module-scope declarations
   !
@@ -603,6 +604,34 @@ MODULE read_namelists_module
      !
      !=----------------------------------------------------------------------=!
      !
+     !  Variables initialization for Namelist KCP_VARS
+     !
+     !-----------------------------------------------------------------------
+     SUBROUTINE kcp_defaults( prog )
+       !-----------------------------------------------------------------------
+       !
+       IMPLICIT NONE
+       !
+       CHARACTER(LEN=2) :: prog   ! ... specify the calling program
+       !
+       which_orbdep = 'none'
+       !
+       nkscalfact   = 0.0
+       !
+       l_read_orbs_from_file = .FALSE.
+       !
+       nkscalfact_odd = .FALSE.
+       !
+       do_innerloop = .FALSE.
+       !
+       innerloop_step = 1
+       !
+       RETURN
+       ! 
+     ENDSUBROUTINE
+
+     !=----------------------------------------------------------------------=!
+     !
      !  Variables initialization for Namelist WANNIER
      !
      !-----------------------------------------------------------------------
@@ -1160,6 +1189,33 @@ MODULE read_namelists_module
      !
      !=----------------------------------------------------------------------------=!
      !
+     !  Broadcast variables values for Namelist KCP
+     !
+     !=----------------------------------------------------------------------=!
+     !
+     !-----------------------------------------------------------------------
+     SUBROUTINE kcp_bcast()
+       !-----------------------------------------------------------------------
+       !
+       USE io_global, ONLY: ionode_id
+       USE mp,        ONLY: mp_bcast
+       USE mp_images, ONLY : intra_image_comm
+       !
+       IMPLICIT NONE
+       !
+       CALL mp_bcast( which_orbdep,    ionode_id, intra_image_comm )
+       CALL mp_bcast( nkscalfact,      ionode_id, intra_image_comm )
+       CALL mp_bcast( nkscalfact_odd,  ionode_id, intra_image_comm )
+       CALL mp_bcast( do_innerloop,    ionode_id, intra_image_comm )
+       CALL mp_bcast( innerloop_step,  ionode_id, intra_image_comm )
+       CALL mp_bcast( l_read_orbs_from_file, ionode_id, intra_image_comm )
+       !
+       RETURN
+       ! 
+     END SUBROUTINE
+     !
+     !=----------------------------------------------------------------------------=!
+     !
      !  Broadcast variables values for Namelist WANNIER
      !
      !=----------------------------------------------------------------------=!
@@ -1585,6 +1641,44 @@ MODULE read_namelists_module
        !
      END SUBROUTINE
      !
+     !
+     !=----------------------------------------------------------------------=!
+     !
+     !  Check input values for Namelist KCP
+     !
+     !=----------------------------------------------------------------------=!
+     !
+     !-----------------------------------------------------------------------
+     SUBROUTINE kcp_checkin( prog )
+       !-----------------------------------------------------------------------
+       !
+       IMPLICIT NONE
+       !
+       CHARACTER(LEN=2)  :: prog   ! ... specify the calling program
+       CHARACTER(LEN=20) :: sub_name = 'kcp_checkin'
+       !
+       INTEGER           :: i
+       LOGICAL           :: allowed = .FALSE.
+       !
+       IF ( LEN_TRIM( which_orbdep ) > 0 ) THEN
+          !
+          DO i = 1, SIZE( which_orbdep_allowed )
+             !
+             IF( TRIM(which_orbdep) == which_orbdep_allowed(i) ) allowed = .TRUE.
+             !
+          END DO
+          ! 
+          IF ( .NOT. allowed ) &
+             ! 
+             CALL errore( sub_name, ' which_orbdep '''// &
+                          & TRIM(which_orbdep)//''' not allowed ',1)
+          !
+       ENDIF
+       ! 
+       RETURN
+       !
+     END SUBROUTINE
+     !
      !=----------------------------------------------------------------------=!
      !
      !  Check input values for Namelist WANNIER
@@ -1920,6 +2014,21 @@ MODULE read_namelists_module
        !
        CALL press_ai_bcast()
        !
+       ! ... KOOPMANS CP NAMELIST
+       !
+       CALL kcp_defaults( prog )
+       !
+       ios = 0
+       IF( ionode ) THEN
+          IF( TRIM( calculation ) == 'cp' ) THEN
+             READ( unit_loc, kcp_vars, iostat = ios )
+          END IF
+       END IF
+       CALL check_namelist_read(ios, unit_loc, "kcp_vars")
+       !
+       CALL kcp_bcast()
+       CALL kcp_checkin( prog )
+       ! 
        ! ... WANNIER NAMELIST
        !
        CALL wannier_defaults( prog )
